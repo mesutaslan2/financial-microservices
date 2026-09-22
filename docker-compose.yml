@@ -20,3 +20,11 @@ services:
     command: python -m uvicorn fraud_service.main:app --host 0.0.0.0 --port 8003
     ports:
       - "8003:8003"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_dashboard
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
