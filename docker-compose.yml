@@ -1,33 +1,22 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: financial_postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: secretpassword
-      POSTGRES_DB: financial_db
+  auth_service:
+    build: .
+    command: python -m uvicorn auth_service.main:app --host 0.0.0.0 --port 8001
     ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      - "8001:8001"
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: financial_rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+  transaction_service:
+    build: .
+    command: python -m uvicorn transaction_service.main:app --host 0.0.0.0 --port 8002
     ports:
-      - "5672:5672"   # Servislerin iletişim portu
-      - "15672:15672" # Arayüz yönetim paneli
+      - "8002:8002"
+    depends_on:
+      - fraud_service
 
-  redis:
-    image: redis:7-alpine
-    container_name: financial_redis
+  fraud_service:
+    build: .
+    command: python -m uvicorn fraud_service.main:app --host 0.0.0.0 --port 8003
     ports:
-      - "6379:6379"
-
-volumes:
-  pgdata:
+      - "8003:8003"
